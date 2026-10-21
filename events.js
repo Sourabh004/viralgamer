@@ -8,6 +8,9 @@
 // note:  small print, e.g. "Dates unconfirmed" or "Announcement awaited"
 // logo:  file in assets/clients (optional)
 // city:  background landmark art — "mumbai" | "bengaluru" (anything else shows an arena)
+// heroImage / venueImage: optional image paths for the featured "Next up" box
+//        (left and right sides). Without them it shows built-in illustrations.
+//        Only use images you have the rights to (press kit, your own photos).
 // Details checked online on 21 Oct 2026.
 window.VG_EVENTS = [
   { tag: "BMIC", name: "BGMI International Cup · Season 2", start: "2026-10-30", end: "2026-11-01", venue: "The Dome, Mumbai", logo: "krafton.png", city: "mumbai" },

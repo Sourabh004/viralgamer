@@ -274,9 +274,62 @@
     card.append(media, body, foot);
     eventsGrid.appendChild(card);
   });
+  // Featured-event scenes, drawn for this site (original illustrations, no game
+  // or venue artwork). events.js can swap either side for a licensed photo via
+  // heroImage / venueImage.
+  const soldier = (x, y, s) =>
+    `<g transform="translate(${x} ${y}) scale(${s})" fill="#0d0f14"><path d="M-6 -35q6-11 12 0z"/><circle cx="0" cy="-32" r="4.6"/><rect x="-9.5" y="-28" width="5" height="11" rx="1.2"/><path d="M-5 -28h10l2 15h-4l-1 13h-3l-1-10-1 10h-3l-1-13h-4z"/><path d="M4 -23l17-7" stroke="#0d0f14" stroke-width="2.4"/></g>`;
+  const chute = (x, y, s, color) =>
+    `<g transform="translate(${x} ${y}) scale(${s})"><path d="M-15 0q15-18 30 0q-7.5-4-15-4t-15 4z" fill="${color}"/><path d="M-15 0L0 19M15 0L0 19M-6 -3L0 19M6 -3L0 19" stroke="#1b1030" stroke-width=".7"/><circle cx="0" cy="21" r="2.2" fill="#1b1030"/><path d="M-1.8 23h3.6v6h-3.6z" fill="#1b1030"/></g>`;
+  const SCENES = {
+    battleground: `<svg viewBox="0 0 600 320" preserveAspectRatio="xMidYMid slice">
+      <defs><linearGradient id="vgb-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d1236"/><stop offset=".5" stop-color="#a83b5e"/><stop offset=".85" stop-color="#ef8a55"/><stop offset="1" stop-color="#f7b062"/></linearGradient></defs>
+      <rect width="600" height="320" fill="url(#vgb-sky)"/>
+      <circle cx="410" cy="226" r="74" fill="#ffd36b" opacity=".9"/>
+      <path d="M0 232L70 178l64 34 80-62 92 66 78-52 86 58 70-38 60 22V320H0z" fill="#6a2a6e" opacity=".75"/>
+      <path d="M0 262l96-44 92 34 96-46 92 50 102-30 122 26V320H0z" fill="#3b1b5f"/>
+      <path d="M40 66h250" stroke="#ffffff" stroke-opacity=".35" stroke-width="2" stroke-dasharray="10 8"/>
+      <g fill="#1b1030" transform="translate(286 50) rotate(-4)"><path d="M0 9h78l16-7h9l-7 9h-9l-5 7H5z"/><path d="M34 9L18-9h9l25 18z"/><path d="M34 13l-12 15h9l21-15z"/><path d="M84 3l6-10h6l-4 10z"/></g>
+      ${chute(214, 108, 1.15, "#ffc23d")}${chute(272, 82, .9, "#ff4d5e")}${chute(330, 128, 1, "#33e0b8")}${chute(160, 150, .8, "#ffc23d")}
+      <g transform="translate(470 92)"><path d="M-20 0q20-24 40 0q-10-5-20-5t-20 5z" fill="#ff4d5e"/><path d="M-20 0L-6 22M20 0L6 22M0 -5V22" stroke="#1b1030" stroke-width=".8"/><rect x="-9" y="22" width="18" height="15" rx="1.5" fill="#b8662c"/><path d="M-9 29h18M0 22v15" stroke="#5a2e1a" stroke-width="1.4"/></g>
+      <path d="M0 292q130-34 250-12t230-4 120 8V320H0z" fill="#0d0f14"/>
+      ${soldier(70, 288, 1.5)}${soldier(108, 283, 1.7)}${soldier(146, 287, 1.45)}
+    </svg>`,
+    dome: (() => {
+      const crowd = Array.from({ length: 46 }, (_, i) => `<circle cx="${8 + i * 13}" cy="${306 - (i % 3) * 3}" r="${5 + (i % 2)}"/>`).join("");
+      return `<svg viewBox="0 0 600 320" preserveAspectRatio="xMidYMid slice">
+      <defs><linearGradient id="vgd-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#070914"/><stop offset="1" stop-color="#1d2244"/></linearGradient>
+      <radialGradient id="vgd-glow" cx=".5" cy=".75" r=".5"><stop offset="0" stop-color="#ffc23d" stop-opacity=".55"/><stop offset="1" stop-color="#ffc23d" stop-opacity="0"/></radialGradient></defs>
+      <rect width="600" height="320" fill="url(#vgd-sky)"/>
+      <g fill="#fff" opacity=".6"><circle cx="60" cy="40" r="1"/><circle cx="140" cy="22" r="1.2"/><circle cx="520" cy="36" r="1"/><circle cx="560" cy="80" r="1.3"/><circle cx="430" cy="18" r="1"/></g>
+      <path d="M300 70L170 0h40z M300 70L390 0h40z" fill="#fff" opacity=".07"/>
+      <path d="M0 250h40v-40h26v40h24v-62h30v62h380v-50h28v50h22v-34h30v34h20v70H0z" fill="#14172a"/>
+      <ellipse cx="300" cy="240" rx="260" ry="80" fill="url(#vgd-glow)"/>
+      <path d="M110 252Q300 52 490 252z" fill="#1d2030" stroke="#3a3f55" stroke-width="2"/>
+      <path d="M300 104Q244 170 214 252M300 104Q356 170 386 252M300 104V252M300 104Q190 150 150 252M300 104Q410 150 450 252" stroke="#3a3f55" stroke-width="1.6" fill="none"/>
+      <path d="M150 214Q300 146 450 214" stroke="#ffc23d" stroke-width="10" opacity=".25" fill="none"/>
+      <path d="M150 214Q300 146 450 214" stroke="#ffc23d" stroke-width="4" fill="none"/>
+      <path d="M268 252v-26q32-24 64 0v26z" fill="#ffc23d" opacity=".9"/>
+      <path d="M0 252h600v68H0z" fill="#0d0f14"/>
+      <g fill="#05060a">${crowd}</g>
+    </svg>`;
+    })(),
+  };
+  const scene = (img, key, side) => {
+    const wrap = el("div", `next-art ${side}`);
+    wrap.setAttribute("aria-hidden", "true");
+    if (img) {
+      const i = el("img");
+      i.src = img;
+      i.alt = "";
+      wrap.appendChild(i);
+    } else wrap.innerHTML = SCENES[key]; // static markup defined above
+    return wrap;
+  };
+
   if (next) {
     const box = document.getElementById("next-event");
-    box.appendChild(landmark(next.city));
+    box.append(scene(next.heroImage, "battleground", "left"), scene(next.venueImage, "dome", "right"));
     const info = el("div", "next-info");
     const head = el("div", "next-head");
     const logo = eventLogo(next);
@@ -289,7 +342,11 @@
       el("p", "next-meta", [dateRange(next), next.venue].filter(Boolean).join("  ·  "))
     );
     box.appendChild(info);
-    if (next.status === "upcoming") box.appendChild(makeCountdown(next.startDate, ["Days", "Hrs", "Min", "Sec"], "countdown"));
+    if (next.status === "upcoming") {
+      const timer = el("div", "next-timer");
+      timer.append(el("span", "next-timer-label", "Starts in"), makeCountdown(next.startDate, ["Days", "Hrs", "Min", "Sec"], "countdown"));
+      box.appendChild(timer);
+    }
     box.hidden = false;
   }
   if (countdowns.length) {
