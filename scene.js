@@ -58,16 +58,152 @@ floor.add(edgeLines);
 const core = new THREE.Group();
 scene.add(core);
 
-const gem = new THREE.Mesh(
-  new THREE.DodecahedronGeometry(1.05, 0),
-  new THREE.MeshStandardMaterial({ color: 0x20232f, metalness: 0.9, roughness: 0.2, flatShading: true, emissive: 0x2a1408, emissiveIntensity: 0.6 })
-);
-core.add(gem);
-const gemWire = new THREE.Mesh(
-  new THREE.DodecahedronGeometry(1.09, 0),
-  new THREE.MeshBasicMaterial({ color: GOLD, wireframe: true, transparent: true, opacity: 0.7 })
-);
-core.add(gemWire);
+const glowMat = (color, intensity = 1) =>
+  new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: intensity, metalness: 0.2, roughness: 0.4 });
+const darkMat = new THREE.MeshStandardMaterial({ color: 0x1d2030, metalness: 0.75, roughness: 0.32 });
+const trimMat = new THREE.MeshStandardMaterial({ color: 0x2c3042, metalness: 0.6, roughness: 0.4 });
+const goldMetal = new THREE.MeshStandardMaterial({ color: GOLD, metalness: 1, roughness: 0.25, emissive: 0x3a2600, emissiveIntensity: 0.6 });
+
+// Game controller (the centrepiece): extruded body outline with grips,
+// d-pad, four glowing face buttons, two thumbsticks and a light bar.
+function makeController() {
+  const g = new THREE.Group();
+  const s = new THREE.Shape();
+  s.moveTo(-0.9, 0.62);
+  s.lineTo(0.9, 0.62);
+  s.bezierCurveTo(1.45, 0.62, 1.7, 0.2, 1.65, -0.35);
+  s.bezierCurveTo(1.6, -0.95, 1.25, -1.15, 1.0, -0.95);
+  s.bezierCurveTo(0.8, -0.8, 0.65, -0.45, 0.45, -0.42);
+  s.lineTo(-0.45, -0.42);
+  s.bezierCurveTo(-0.65, -0.45, -0.8, -0.8, -1.0, -0.95);
+  s.bezierCurveTo(-1.25, -1.15, -1.6, -0.95, -1.65, -0.35);
+  s.bezierCurveTo(-1.7, 0.2, -1.45, 0.62, -0.9, 0.62);
+  const bodyGeo = new THREE.ExtrudeGeometry(s, { depth: 0.36, bevelEnabled: true, bevelThickness: 0.12, bevelSize: 0.1, bevelSegments: 4, curveSegments: 28 });
+  bodyGeo.center();
+  g.add(new THREE.Mesh(bodyGeo, darkMat));
+  const outline = new THREE.LineSegments(new THREE.EdgesGeometry(bodyGeo, 40), new THREE.LineBasicMaterial({ color: GOLD, transparent: true, opacity: 0.55 }));
+  g.add(outline);
+
+  const FRONT = 0.31;
+  // D-pad
+  const dpad = new THREE.Group();
+  dpad.add(new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.14, 0.08), trimMat));
+  dpad.add(new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.44, 0.08), trimMat));
+  dpad.position.set(-0.95, 0.12, FRONT);
+  g.add(dpad);
+  // Face buttons
+  const btnGeo = new THREE.CylinderGeometry(0.085, 0.085, 0.08, 20).rotateX(Math.PI / 2);
+  [[0, 0.17, GOLD], [0.17, 0, RED], [0, -0.17, MINT], [-0.17, 0, new THREE.Color(0xf1f2f6)]].forEach(([x, y, c]) => {
+    const b = new THREE.Mesh(btnGeo, glowMat(c, 0.9));
+    b.position.set(0.95 + x, 0.12 + y, FRONT);
+    g.add(b);
+  });
+  // Thumbsticks
+  [-0.45, 0.45].forEach((x) => {
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(0.19, 0.19, 0.06, 28).rotateX(Math.PI / 2), trimMat);
+    base.position.set(x, -0.2, FRONT);
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.12, 0.12, 28).rotateX(Math.PI / 2), darkMat);
+    cap.position.set(x, -0.2, FRONT + 0.08);
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.015, 8, 32), glowMat(GOLD, 0.8));
+    rim.position.set(x, -0.2, FRONT + 0.14);
+    g.add(base, cap, rim);
+  });
+  // Light bar
+  const bar = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.05, 0.04), glowMat(MINT, 1.4));
+  bar.position.set(0, 0.42, FRONT);
+  g.add(bar);
+  g.scale.setScalar(1.05);
+  return g;
+}
+
+// Trophy: lathed cup on a stem and plinth, with two handles.
+function makeTrophy() {
+  const g = new THREE.Group();
+  const profile = [[0, 0], [0.42, 0], [0.44, 0.05], [0.4, 0.3], [0.32, 0.55], [0.2, 0.68], [0.08, 0.72], [0.07, 0.9], [0.2, 0.95], [0.22, 1.0], [0.0, 1.0]]
+    .map(([x, y]) => new THREE.Vector2(x, y));
+  const cup = new THREE.Mesh(new THREE.LatheGeometry(profile.reverse(), 40), goldMetal);
+  cup.rotation.x = Math.PI; // wide end up
+  cup.position.y = 1.0;
+  g.add(cup);
+  [-1, 1].forEach((side) => {
+    const handle = new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.035, 10, 24, Math.PI), goldMetal);
+    handle.rotation.z = side * -Math.PI / 2;
+    handle.position.set(side * 0.42, 0.72, 0);
+    g.add(handle);
+  });
+  const plinth = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.18, 0.5), darkMat);
+  plinth.position.y = -0.09;
+  const plate = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.06, 0.02), glowMat(GOLD, 0.6));
+  plate.position.set(0, -0.09, 0.26);
+  g.add(plinth, plate);
+  return g;
+}
+
+// Headset: headband arc, two ear cups with glowing rings, and a mic boom.
+function makeHeadset() {
+  const g = new THREE.Group();
+  const band = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.07, 12, 40, Math.PI), darkMat);
+  g.add(band);
+  const pad = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.075, 12, 40, Math.PI * 0.5), glowMat(RED, 0.5));
+  pad.rotation.z = Math.PI * 0.25;
+  g.add(pad);
+  [-1, 1].forEach((side) => {
+    const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.2, 32).rotateZ(Math.PI / 2), darkMat);
+    cup.position.set(side * 0.66, -0.08, 0);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.03, 10, 32).rotateY(Math.PI / 2), glowMat(RED, 1.1));
+    ring.position.set(side * 0.77, -0.08, 0);
+    g.add(cup, ring);
+  });
+  const mic = new THREE.Mesh(new THREE.TubeGeometry(new THREE.QuadraticBezierCurve3(new THREE.Vector3(-0.72, -0.2, 0.1), new THREE.Vector3(-0.7, -0.6, 0.45), new THREE.Vector3(-0.25, -0.62, 0.55)), 20, 0.025, 8), trimMat);
+  const micTip = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 16), glowMat(RED, 1));
+  micTip.position.set(-0.25, -0.62, 0.55);
+  g.add(mic, micTip);
+  return g;
+}
+
+// Keycap with a glowing letter on top.
+function makeKey(letter) {
+  const c = document.createElement("canvas");
+  c.width = c.height = 128;
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "#1d2030";
+  ctx.fillRect(0, 0, 128, 128);
+  ctx.strokeStyle = "#ffc23d";
+  ctx.lineWidth = 6;
+  ctx.strokeRect(10, 10, 108, 108);
+  ctx.fillStyle = "#ffc23d";
+  ctx.font = "bold 72px Orbitron, Arial, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(letter, 64, 68);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const top = new THREE.MeshStandardMaterial({ map: tex, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 0.6, roughness: 0.5 });
+  // BoxGeometry face order: +x, -x, +y, -y, +z, -z — the letter goes on +z.
+  return new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.42, 0.22), [trimMat, trimMat, trimMat, trimMat, top, darkMat]);
+}
+
+const controller = makeController();
+core.add(controller);
+
+const props = [];
+const addProp = (obj, pos, scale, spin, bob) => {
+  obj.position.copy(pos);
+  obj.scale.setScalar(scale);
+  obj.userData = { base: pos.clone(), spin, bob: Math.random() * Math.PI * 2, amp: bob };
+  core.add(obj);
+  props.push(obj);
+};
+addProp(makeTrophy(), new THREE.Vector3(2.5, 1.2, -1.2), 0.85, 0.5, 0.12);
+addProp(makeHeadset(), new THREE.Vector3(-2.6, -1.3, -0.6), 0.85, -0.35, 0.1);
+const keys = new THREE.Group();
+[["W", 0, 0.48], ["A", -0.48, 0], ["S", 0, 0], ["D", 0.48, 0]].forEach(([l, x, y]) => {
+  const k = makeKey(l);
+  k.position.set(x, y, 0);
+  keys.add(k);
+});
+keys.rotation.set(-0.35, 0.4, 0.1);
+addProp(keys, new THREE.Vector3(-2.4, 1.7, -1.6), 0.9, 0, 0.14);
 
 // Hexagonal rings (a torus with 6 radial segments is a hexagon).
 const rings = [];
@@ -220,9 +356,14 @@ function tick() {
   floor.instanceMatrix.needsUpdate = true;
   floor.instanceColor.needsUpdate = true;
 
-  gem.rotation.y = t * 0.35;
-  gem.rotation.x = t * 0.2 + scroll * 3;
-  gemWire.rotation.copy(gem.rotation);
+  // Controller turns toward the pointer and rocks gently; props float and spin.
+  controller.rotation.y = Math.sin(t * 0.6) * 0.45 + pointer.x * 0.35 + scroll * 4;
+  controller.rotation.x = -0.2 + Math.sin(t * 0.8) * 0.12 + pointer.y * 0.2;
+  controller.rotation.z = Math.sin(t * 0.5) * 0.06;
+  props.forEach((p) => {
+    p.rotation.y += p.userData.spin * 0.01;
+    p.position.y = p.userData.base.y + Math.sin(t * 1.1 + p.userData.bob) * p.userData.amp;
+  });
   rings.forEach((r) => (r.rotation.z += r.userData.speed * 0.012));
   core.position.y += Math.sin(t * 1.2) * 0.002;
   glow.lookAt(camera.position);
