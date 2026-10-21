@@ -469,6 +469,14 @@
   });
   form.addEventListener("input", (ev) => ev.target.closest(".field")?.classList.remove("invalid"));
 
+  // "Start a brief" on a service card ticks that service in the brief form.
+  document.querySelectorAll("[data-need]").forEach((a) =>
+    a.addEventListener("click", () => {
+      const box = form.querySelector(`input[name="needs"][value="${CSS.escape(a.dataset.need)}"]`);
+      if (box) box.checked = true;
+    })
+  );
+
   // Game Mode: load the pixel font, game.css and game.js on first use.
   let gameLoad = null;
   const loadAsset = (tag, attrs) =>

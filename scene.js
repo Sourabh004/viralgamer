@@ -194,8 +194,9 @@ const addProp = (obj, pos, scale, spin, bob) => {
   core.add(obj);
   props.push(obj);
 };
-addProp(makeTrophy(), new THREE.Vector3(2.5, 1.2, -1.2), 0.85, 0.5, 0.12);
-addProp(makeHeadset(), new THREE.Vector3(-2.6, -1.3, -0.6), 0.85, -0.35, 0.1);
+// Props cluster above and to the right of the controller, away from the hero copy.
+addProp(makeTrophy(), new THREE.Vector3(2.4, 1.7, -1.2), 0.8, 0.5, 0.12);
+addProp(makeHeadset(), new THREE.Vector3(2.6, -1.7, -0.4), 0.8, -0.35, 0.1);
 const keys = new THREE.Group();
 [["W", 0, 0.48], ["A", -0.48, 0], ["S", 0, 0], ["D", 0.48, 0]].forEach(([l, x, y]) => {
   const k = makeKey(l);
@@ -203,7 +204,7 @@ const keys = new THREE.Group();
   keys.add(k);
 });
 keys.rotation.set(-0.35, 0.4, 0.1);
-addProp(keys, new THREE.Vector3(-2.4, 1.7, -1.6), 0.9, 0, 0.14);
+addProp(keys, new THREE.Vector3(-0.2, 2.7, -1.8), 0.8, 0, 0.14);
 
 // Hexagonal rings (a torus with 6 radial segments is a hexagon).
 const rings = [];
@@ -327,8 +328,17 @@ function resize() {
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
   // On narrow screens push the core back so it sits behind the text.
-  if (w < 720) core.position.set(1.2, 3.6, -10);
-  else core.position.set(3.4, 0.9, 0);
+  // Keep the hologram in the right-hand column so it never sits behind the copy.
+  if (w < 720) {
+    core.position.set(1.2, 3.6, -10);
+    core.scale.setScalar(1);
+  } else if (w < 1100) {
+    core.position.set(4.2, 1.0, -2);
+    core.scale.setScalar(0.8);
+  } else {
+    core.position.set(4.6, 0.7, -0.5);
+    core.scale.setScalar(0.88);
+  }
 }
 window.addEventListener("resize", resize);
 resize();
