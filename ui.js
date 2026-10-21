@@ -216,9 +216,41 @@
     return cd;
   };
 
+  // Line-art landmarks drawn for this site (simple original silhouettes).
+  const LANDMARKS = {
+    mumbai: // a Gateway-style arch monument by the sea
+      '<path d="M10 94h180"/><path d="M44 94V46h112v48"/><path d="M84 94V66q16-22 32 0v28"/><path d="M54 94V74q6-8 12 0v20M134 94V74q6-8 12 0v20"/><path d="M40 46h120M44 40h112"/><path d="M44 40V26h12v14M144 40V26h12v14M78 40V30h10v10M112 40V30h10v10"/><path d="M44 26q6-10 12 0M144 26q6-10 12 0M78 30q5-8 10 0M112 30q5-8 10 0M92 40q8-14 16 0"/><path d="M0 99q8-3 16 0t16 0t16 0t16 0t16 0t16 0t16 0t16 0t16 0t16 0t16 0t16 0t16 0"/>',
+    bengaluru: // a long domed legislature-style building
+      '<path d="M6 94h188"/><path d="M14 94V62h172v32"/><path d="M14 62h172"/><path d="M30 66v24M44 66v24M58 66v24M72 66v24M128 66v24M142 66v24M156 66v24M170 66v24"/><path d="M80 94V54h40v40"/><path d="M76 54l24-10 24 10"/><path d="M88 44V34h24v10"/><path d="M86 34q14-26 28 0"/><path d="M100 12V6"/><path d="M70 94h60M74 90h52"/><path d="M24 62q6-10 12 0M164 62q6-10 12 0"/>',
+    arena: // generic esports arena with a stage screen and light rigs
+      '<path d="M10 94h180"/><path d="M20 94q80-40 160 0"/><path d="M38 94q62-28 124 0"/><rect x="78" y="52" width="44" height="26" rx="2"/><path d="M92 65l6 4-6 4zM104 62h10M104 68h10M104 74h6"/><path d="M24 94V36M176 94V36"/><path d="M16 36h16M168 36h16"/><path d="M24 38l44 34M176 38l-44 34" stroke-dasharray="3 4"/>',
+  };
+  const landmark = (city) => {
+    const art = el("div", "event-art");
+    art.setAttribute("aria-hidden", "true");
+    art.innerHTML = `<svg viewBox="0 0 200 100" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${LANDMARKS[city] || LANDMARKS.arena}</svg>`;
+    return art;
+  };
+  const eventLogo = (e) => {
+    if (!e.logo) return null;
+    const img = el("img", "event-logo");
+    img.src = `assets/clients/${e.logo}`;
+    img.alt = "";
+    img.loading = "lazy";
+    return img;
+  };
+
+  // Feature the soonest upcoming event (countdown); fall back to one that's live.
+  // The featured event gets the big box and is left out of the card grid.
+  const byStart = (a, b) => a.startDate - b.startDate;
+  const next = events.filter((e) => e.status === "upcoming").sort(byStart)[0] || events.filter((e) => e.status === "live").sort(byStart)[0];
+
   const eventsGrid = document.getElementById("events-grid");
-  events.forEach((e) => {
+  events.filter((e) => e !== next).forEach((e) => {
     const card = el("article", `event reveal ${e.status || "tba"}`);
+    card.appendChild(landmark(e.city));
+    const logo = eventLogo(e);
+    if (logo) card.appendChild(logo);
     const top = el("div");
     top.appendChild(el("h3", null, e.tag));
     if (e.name) top.appendChild(el("p", null, e.name));
@@ -236,12 +268,12 @@
     if (e.note) card.appendChild(el("small", "event-note", e.note));
     eventsGrid.appendChild(card);
   });
-  // Feature the soonest upcoming event (countdown); fall back to one that's live.
-  const byStart = (a, b) => a.startDate - b.startDate;
-  const next = events.filter((e) => e.status === "upcoming").sort(byStart)[0] || events.filter((e) => e.status === "live").sort(byStart)[0];
   if (next) {
     const box = document.getElementById("next-event");
-    const info = el("div");
+    box.appendChild(landmark(next.city));
+    const info = el("div", "next-info");
+    const logo = eventLogo(next);
+    if (logo) info.appendChild(logo);
     info.append(
       el("span", "next-label", next.status === "live" ? "● Live now" : "Next up"),
       el("h3", null, next.tag),
@@ -370,6 +402,38 @@
     window.open("https://ig.me/m/viral.gamer", "_blank", "noopener");
   });
   form.addEventListener("input", (ev) => ev.target.closest(".field")?.classList.remove("invalid"));
+
+  // Game Mode: load the pixel font, game.css and game.js on first use.
+  let gameLoad = null;
+  const loadAsset = (tag, attrs) =>
+    new Promise((resolve, reject) => {
+      const n = document.createElement(tag);
+      Object.assign(n, attrs);
+      n.onload = resolve;
+      n.onerror = reject;
+      document.head.appendChild(n);
+    });
+  const launchGame = async () => {
+    if (window.VGGame?.running) return;
+    document.documentElement.classList.add("game-loading");
+    try {
+      gameLoad =
+        gameLoad ||
+        Promise.all([
+          loadAsset("link", { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" }),
+          loadAsset("link", { rel: "stylesheet", href: "game.css" }),
+          loadAsset("script", { src: "game.js" }),
+        ]).then(() => document.fonts.load('10px "Press Start 2P"').catch(() => {}));
+      await gameLoad;
+      window.VGGame.start();
+    } catch {
+      gameLoad = null;
+      alert("Game mode couldn't load. Please check your connection and try again.");
+    } finally {
+      document.documentElement.classList.remove("game-loading");
+    }
+  };
+  document.querySelectorAll("[data-game-launch]").forEach((b) => b.addEventListener("click", launchGame));
 
   // Scroll reveal
   const io = new IntersectionObserver(

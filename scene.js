@@ -394,4 +394,6 @@ if (reduceMotion) {
   window.addEventListener("resize", tick);
 } else {
   renderer.setAnimationLoop(tick);
+  // Pause the 3D scene while Game Mode covers the page.
+  window.addEventListener("vg-game", (e) => renderer.setAnimationLoop(e.detail ? null : tick));
 }

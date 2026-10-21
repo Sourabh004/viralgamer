@@ -67,6 +67,20 @@ main, .nav, .footer { position: relative; z-index: 2; }
 .links a::after { content: ""; position: absolute; left: 0; bottom: -4px; height: 2px; width: 0; background: var(--gold); transition: width .25s; }
 .links a:hover::after { width: 100%; }
 
+/* GAME MODE LAUNCHERS */
+.nav-cta { display: flex; align-items: center; gap: 10px; flex: none; }
+.btn-game {
+  display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; cursor: pointer;
+  font: 400 10px/1 "Orbitron", system-ui, sans-serif; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--mint); background: rgba(51, 224, 184, .1); border: 1px solid color-mix(in srgb, var(--mint) 55%, transparent); border-radius: 999px;
+  transition: background .2s, color .2s, box-shadow .2s;
+}
+.btn-game:hover { background: var(--mint); color: #0d0f14; box-shadow: 0 0 18px rgba(51, 224, 184, .5); }
+.btn-game span { animation: pulse 1.4s infinite; }
+.btn-play { border: 0; cursor: pointer; color: #0d0f14; background: var(--mint); }
+.btn-play:hover { filter: brightness(1.05) drop-shadow(0 0 14px rgba(51, 224, 184, .5)); }
+.game-loading { cursor: progress; }
+
 /* BUTTONS */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;
@@ -401,7 +415,18 @@ main { counter-reset: sec; }
 .chip.live { color: #fff; background: var(--red); border-color: var(--red); }
 .chip.live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #fff; animation: pulse 1.2s infinite; }
 .chip.upcoming { color: var(--gold); border-color: color-mix(in srgb, var(--gold) 50%, transparent); }
-.event h3 { font-size: clamp(22px, 2.4vw, 30px); }
+/* Names size to the card and never break mid-word. */
+.event { container-type: inline-size; }
+.event h3 { font-size: min(30px, 11.5cqi); overflow-wrap: normal; word-break: normal; hyphens: none; line-height: 1.1; padding-right: 52px; }
+.event > *:not(.event-art) { position: relative; z-index: 1; }
+.event-art { position: absolute; left: 0; right: 0; bottom: 0; height: 62%; z-index: 0; color: var(--c); opacity: .2; pointer-events: none;
+  -webkit-mask: linear-gradient(180deg, transparent, #000 45%); mask: linear-gradient(180deg, transparent, #000 45%); }
+.event-art svg { width: 100%; height: 100%; display: block; }
+.event:hover .event-art { opacity: .32; }
+.event-logo { position: absolute !important; top: 16px; right: 16px; width: 44px; height: 32px; object-fit: contain; padding: 3px; border-radius: 8px; background: #f4f4f6; }
+.next-event .event-art { left: auto; width: min(560px, 60%); height: 100%; right: 6%; color: var(--gold); opacity: .16;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 40%); mask: linear-gradient(90deg, transparent, #000 40%); }
+.next-info .event-logo { position: static !important; display: block; margin-bottom: 12px; width: 64px; height: 44px; }
 .event-venue { flex-basis: 100%; }
 .event-note { color: var(--muted); font-size: 13px; font-weight: 600; font-style: italic; }
 .event.tba { opacity: .82; }
@@ -501,6 +526,9 @@ main { counter-reset: sec; }
 @media (max-width: 600px) {
   /* One full-size card per row so the stats stay readable on phones. */
   .team { grid-template-columns: minmax(0, 380px); justify-content: center; gap: 20px; }
+}
+@media (max-width: 560px) {
+  .nav-cta .btn-sm { display: none; } /* keep Game mode; Apply Now is in the hero */
 }
 @media (max-width: 480px) {
   .cards { grid-template-columns: 1fr; }

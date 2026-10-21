@@ -1,0 +1,95 @@
+/* Viral Gamer — Game Mode (loaded on demand) */
+html.vg-game-on, html.vg-game-on body { overflow: hidden !important; }
+
+.vg-game {
+  position: fixed; inset: 0; z-index: 1000; background: #0d0f14;
+  font-family: "Press Start 2P", monospace; color: #f1f2f6;
+  touch-action: none; user-select: none; -webkit-user-select: none;
+}
+.vg-game .g-canvas { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
+
+/* Pixel-bordered buttons */
+.vg-game .g-btn {
+  font: 10px/1 "Press Start 2P", monospace; color: #14110a; background: #ffc23d; border: 0; cursor: pointer;
+  padding: 10px 12px;
+  box-shadow: 0 -3px 0 0 #14110a, 0 3px 0 0 #14110a, -3px 0 0 0 #14110a, 3px 0 0 0 #14110a, inset -3px -3px 0 0 #b8862a;
+}
+.vg-game .g-btn:hover { background: #ffd36b; }
+.vg-game .g-btn:active { transform: translateY(2px); }
+.vg-game .g-btn:focus-visible { outline: 3px solid #33e0b8; outline-offset: 4px; }
+.vg-game .g-top { position: absolute; top: 34px; right: 16px; display: flex; gap: 16px; z-index: 3; }
+.vg-game .g-top .g-btn { background: #f1f2f6; box-shadow: 0 -3px 0 0 #14110a, 0 3px 0 0 #14110a, -3px 0 0 0 #14110a, 3px 0 0 0 #14110a, inset -3px -3px 0 0 #9aa0b5; }
+
+/* Start screen */
+.vg-game .g-start {
+  position: absolute; inset: 0; z-index: 4; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+  padding: 24px; text-align: center; cursor: pointer;
+  background: radial-gradient(ellipse at center, rgba(13, 15, 20, .55), rgba(13, 15, 20, .92));
+}
+.vg-game .g-start[hidden] { display: none; }
+.vg-game .g-logo { margin: 0; font-size: clamp(22px, 6vw, 54px); color: #ffc23d; text-shadow: 4px 4px 0 #ff4d5e, 8px 8px 0 #14110a; letter-spacing: .04em; }
+.vg-game .g-sub { margin: 0; font-size: clamp(8px, 1.6vw, 12px); color: #33e0b8; }
+.vg-game .g-press { margin: 18px 0 6px; font-size: clamp(12px, 2.4vw, 18px); animation: g-blink 1s steps(2) infinite; }
+.vg-game .g-help { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; font-size: clamp(7px, 1.4vw, 10px); color: #c3c7d4; line-height: 1.6; }
+.vg-game .g-help b { color: #ffc23d; font-weight: 400; }
+@keyframes g-blink { 50% { opacity: 0; } }
+
+/* Touch pad */
+.vg-game .g-touch { position: absolute; left: 0; right: 0; bottom: 18px; display: none; justify-content: space-between; padding: 0 18px; z-index: 3; pointer-events: none; }
+.vg-game .g-touch button {
+  pointer-events: auto; width: 64px; height: 64px; border-radius: 50%; border: 3px solid #14110a;
+  font: 18px "Press Start 2P", monospace; color: #14110a; background: rgba(241, 242, 246, .85); touch-action: none;
+}
+.vg-game .g-touch button.on { background: #ffc23d; transform: scale(.94); }
+.vg-game .g-touch .g-a { margin-left: auto; width: 76px; height: 76px; background: rgba(255, 77, 94, .9); color: #fff; }
+.vg-game .g-touch button + button:not(.g-a) { margin-left: 12px; }
+@media (pointer: coarse) { .vg-game .g-touch { display: flex; } }
+
+/* Dialog */
+.vg-game .g-dialog { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; padding: 16px; background: rgba(5, 6, 10, .55); }
+.vg-game .g-dialog[hidden] { display: none; }
+.vg-game .g-box {
+  width: min(560px, 100%); max-height: min(78vh, 640px); overflow: auto; padding: 22px 22px 18px;
+  background: #1b1030; color: #f1f2f6;
+  box-shadow: 0 -4px 0 0 #f1f2f6, 0 4px 0 0 #f1f2f6, -4px 0 0 0 #f1f2f6, 4px 0 0 0 #f1f2f6, 0 0 0 8px #14110a, 12px 12px 0 8px rgba(0, 0, 0, .5);
+  animation: g-pop .18s steps(3);
+}
+@keyframes g-pop { from { transform: scale(.6); } to { transform: scale(1); } }
+.vg-game .g-title { margin: 0 0 16px; font-size: 12px; color: #ffc23d; line-height: 1.5; }
+.vg-game .g-body { font-family: "Rajdhani", system-ui, sans-serif; font-size: 17px; line-height: 1.55; font-weight: 500; }
+.vg-game .g-body p { margin: 0 0 12px; }
+.vg-game .g-body h3 { margin: 0 0 8px; font: 12px/1.5 "Press Start 2P", monospace; color: #fff; }
+.vg-game .g-body hr { border: 0; border-top: 2px dashed #3a3f55; margin: 16px 0; }
+.vg-game .g-body a { color: #33e0b8; }
+.vg-game .g-big { font: 11px/1.8 "Press Start 2P", monospace; color: #fff; }
+.vg-game .g-small { font-size: 14px; color: #9aa0b5; }
+.vg-game .g-quote { padding: 10px 12px; background: rgba(0, 0, 0, .3); border-left: 4px solid #ffc23d; font-style: italic; }
+.vg-game .g-quote small { color: #9aa0b5; font-style: normal; }
+.vg-game .g-chip { display: inline-block; padding: 5px 8px; font: 8px "Press Start 2P", monospace; background: #3a3f55; color: #fff; }
+.vg-game .g-chip.upcoming { background: #ffc23d; color: #14110a; }
+.vg-game .g-chip.live { background: #ff4d5e; }
+.vg-game .g-chip.covered { background: #33e0b8; color: #14110a; }
+.vg-game .g-count { font: 16px "Press Start 2P", monospace; color: #ffc23d; }
+.vg-game .g-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.vg-game .g-stats div { padding: 10px; background: rgba(0, 0, 0, .3); }
+.vg-game .g-stats b { display: block; font: 18px "Press Start 2P", monospace; color: #ffc23d; }
+.vg-game .g-stats small, .vg-game .g-list small { font-size: 12px; color: #9aa0b5; letter-spacing: .08em; }
+.vg-game .g-list, .vg-game .g-links, .vg-game .g-bars { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 8px; }
+.vg-game .g-list li { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: baseline; padding: 6px 0; border-bottom: 2px dashed #3a3f55; }
+.vg-game .g-list b { font: 11px "Press Start 2P", monospace; color: #33e0b8; }
+.vg-game .g-links a { font: 10px/1.6 "Press Start 2P", monospace; }
+.vg-game .g-player { display: flex; gap: 14px; align-items: center; margin-bottom: 14px; }
+.vg-game .g-player img { width: 96px; height: 120px; object-fit: cover; image-rendering: pixelated; box-shadow: 0 0 0 4px #14110a, 0 0 0 6px #ffc23d; }
+.vg-game .g-player p { margin: 4px 0; }
+.vg-game .g-ovr { font: 14px "Press Start 2P", monospace; color: #ffc23d; }
+.vg-game .g-bars li { display: grid; grid-template-columns: 110px 1fr 32px; gap: 10px; align-items: center; font-size: 14px; text-transform: uppercase; letter-spacing: .08em; color: #c3c7d4; }
+.vg-game .g-bars i { height: 8px; background: linear-gradient(90deg, #ffc23d var(--v), #3a3f55 var(--v)); }
+.vg-game .g-bars b { font: 9px "Press Start 2P", monospace; color: #fff; text-align: right; }
+.vg-game .g-logos { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; margin-bottom: 14px; }
+.vg-game .g-logos img { width: 100%; aspect-ratio: 4 / 3; object-fit: contain; background: #f4f4f6; padding: 4px; image-rendering: auto; }
+.vg-game .g-actions { display: flex; flex-wrap: wrap; gap: 18px; justify-content: flex-end; margin-top: 18px; padding: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .vg-game .g-press { animation: none; }
+  .vg-game .g-box { animation: none; }
+}
