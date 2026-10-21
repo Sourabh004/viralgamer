@@ -21,7 +21,7 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: clip; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body {
   margin: 0;
   background:
@@ -32,7 +32,7 @@ body {
   font-family: var(--font-body);
   font-size: 18px;
   line-height: 1.6;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 a { color: inherit; text-decoration: none; }
 img { display: block; max-width: 100%; }
@@ -118,7 +118,7 @@ main, .nav, .footer { position: relative; z-index: 2; }
 h1, h2, h3 { font-family: var(--font-display); margin: 0; line-height: 1.05; }
 h1 { font-size: clamp(40px, 5.8vw, 84px); font-weight: 900; letter-spacing: -0.01em; line-height: .98; color: var(--ink); text-shadow: 0 6px 40px rgba(0, 0, 0, .6); }
 h1 span { display: block; background: linear-gradient(90deg, var(--gold), var(--red)); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; }
-.hero-copy { position: relative; max-width: 700px; }
+.hero-copy { position: relative; width: 100%; max-width: 700px; min-width: 0; }
 .hero-copy .lede { max-width: 540px; }
 .lede { max-width: 560px; color: var(--ink-2); font-size: clamp(18px, 2vw, 21px); font-weight: 500; margin: 22px 0 32px; text-shadow: 0 1px 12px var(--bg); }
 .cta { display: flex; gap: 14px; flex-wrap: wrap; }
@@ -163,7 +163,9 @@ h1 span { display: block; background: linear-gradient(90deg, var(--gold), var(--
 .scroll-hint span { position: absolute; top: 8px; left: 50%; width: 4px; height: 8px; margin-left: -2px; border-radius: 2px; background: var(--gold); animation: wheel 1.6s infinite; }
 @keyframes wheel { to { transform: translateY(14px); opacity: 0; } }
 
-/* TICKER */
+/* TICKER — the strip is wider than the screen so the tilt has no gaps; the
+   wrapper clips that overhang so it can never widen the page on phones. */
+.ticker-wrap { position: relative; z-index: 2; overflow: hidden; padding: 14px 0; }
 .ticker { overflow: hidden; background: var(--gold); color: #14110a; transform: rotate(-1.5deg); margin: 0 -20px; box-shadow: 0 14px 40px -18px rgba(255, 194, 61, .5); }
 .track { display: flex; gap: 28px; width: max-content; padding: 13px 0; animation: marquee 34s linear infinite; font-family: var(--font-display); font-weight: 900; letter-spacing: .14em; font-size: 15px; }
 .track i { color: var(--red); font-style: normal; }
@@ -626,6 +628,61 @@ main { counter-reset: sec; }
   .stat span { font-size: 10.5px; letter-spacing: .06em; }
   .cards { grid-template-columns: 1fr; }
   .logo span { display: none; }
+}
+/* PHONES (iPhone-size screens) */
+@media (max-width: 600px) {
+  .nav { top: 10px; padding: 6px 6px 6px 8px; }
+  .logo img { width: 36px; height: 36px; }
+  .nav-cta .btn-sm { padding: 9px 14px; font-size: 11px; }
+
+  .hero { min-height: auto; padding: 104px 0 56px; }
+  .hero::before { width: 100vw; }
+  .eyebrow { font-size: 11px; padding: 5px 12px; margin-bottom: 14px; }
+  h1 { font-size: 9.6vw; line-height: 1.02; }
+  .hero-copy .lede { font-size: 17px; line-height: 1.55; margin: 16px 0 24px; }
+  .btn-play { width: 100%; white-space: normal; padding: 12px 16px 12px 12px; font-size: 12px; letter-spacing: .08em; }
+  .play-ico { width: 34px; height: 34px; }
+  .play-text small { font-size: 12px; }
+  .stats { margin-top: 24px; max-width: none; }
+  .stat strong { font-size: 24px; }
+  .hero-trust { margin-top: 18px; gap: 8px; }
+  .hero-trust span { flex-basis: 100%; margin: 0 0 2px; }
+  .hero-trust img { width: 50px; height: 32px; }
+  .scroll-hint { display: none; }
+
+  .section { padding-top: 76px; }
+  .section-head { margin-bottom: 28px; }
+  h2 { font-size: clamp(28px, 8.4vw, 40px); line-height: 1.08; }
+  .sub { font-size: 16px; }
+  .kicker { font-size: 11px; margin-bottom: 10px; }
+  .panel { padding: 22px 18px; border-radius: 16px; }
+
+  /* Swipe rows instead of long stacks: services, events, team. The next card
+     peeks in from the right so it's clear you can swipe. */
+  .services-grid, .events, .team {
+    display: flex; gap: 14px; overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory; scroll-padding-inline: 16px;
+    margin-inline: -16px; padding: 4px 16px 18px; scrollbar-width: none;
+    perspective: none;
+  }
+  .services-grid::-webkit-scrollbar, .events::-webkit-scrollbar, .team::-webkit-scrollbar { display: none; }
+  .services-grid > *, .events > * { flex: 0 0 80%; scroll-snap-align: start; }
+  .team > * { flex: 0 0 78%; scroll-snap-align: start; }
+  .member { aspect-ratio: 4 / 5.6; }
+  .tilt { transform: none !important; } /* no 3D tilt on touch */
+
+  /* Reach: platform cards as compact rows */
+  .reach-total { padding: 18px; gap: 16px; }
+  .reach-total strong { font-size: 40px; }
+  .reach-total span { font-size: 15px; }
+  .platforms { grid-template-columns: 1fr; gap: 10px; }
+  .platform { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 12px; padding: 14px 16px; }
+  .platform-head { grid-row: span 2; margin: 0; flex-wrap: wrap; row-gap: 2px; }
+  .platform-head small { margin-left: 0; flex-basis: 100%; padding-left: 36px; }
+  .platform strong { font-size: 24px; text-align: right; }
+  .platform > span { text-align: right; font-size: 10px; }
+
+  .footer { flex-direction: column; align-items: center; text-align: center; gap: 10px; margin-top: 56px; padding: 22px 0 32px; font-size: 14px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
