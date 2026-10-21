@@ -61,14 +61,8 @@
       fallback.className = "reel-fallback";
       fallback.textContent = "▶ Play on Instagram";
       embed.appendChild(fallback);
-      const link = document.createElement("a");
-      link.href = url;
-      link.target = "_blank";
-      link.rel = "noopener";
-      link.className = "reel-link";
-      link.textContent = "Open on Instagram ↗";
       if (head.childNodes.length) card.appendChild(head);
-      card.append(embed, link);
+      card.appendChild(embed);
       reelsEl.appendChild(card);
     });
 

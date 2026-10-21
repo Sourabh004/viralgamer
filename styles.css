@@ -191,8 +191,6 @@ h2 { font-size: clamp(32px, 5vw, 58px); font-weight: 900; color: var(--ink); }
   background: linear-gradient(160deg, var(--teal-soft), var(--violet-soft) 55%, var(--pink-soft));
 }
 .reel-fallback { font-family: var(--font-display); font-weight: 800; letter-spacing: .1em; color: var(--ink); padding: 14px 20px; border-radius: 999px; background: rgba(255,255,255,.8); }
-.reel-link { align-self: flex-start; font-weight: 700; color: var(--teal); letter-spacing: .04em; }
-.reel-link:hover { color: var(--pink); }
 .reel-nav {
   position: absolute; top: 45%; z-index: 3; width: 46px; height: 46px; border-radius: 50%;
   border: 1px solid rgba(255,255,255,.95); background: rgba(255,255,255,.9); color: var(--ink);
