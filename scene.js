@@ -8,156 +8,170 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setClearColor(0x000000, 0);
 
 const scene = new THREE.Scene();
-// Fog fades into the page's pastel background instead of black.
-scene.fog = new THREE.Fog(0xeaf2f8, 12, 55);
+scene.fog = new THREE.FogExp2(0x0d0f14, 0.05);
 
-const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 200);
-camera.position.set(0, 1.2, 9);
+const camera = new THREE.PerspectiveCamera(58, 1, 0.1, 200);
+camera.position.set(0, 2.2, 10);
 
-const TEAL = 0x13b5a8;
-const PINK = 0xe8559c;
-const VIOLET = 0x7c6cf0;
-const SUN = 0xf5b83d;
+const GOLD = new THREE.Color(0xffc23d);
+const RED = new THREE.Color(0xff4d5e);
+const MINT = new THREE.Color(0x33e0b8);
+const ACCENTS = [GOLD, RED, MINT];
 
-// Grid floor: two grids slide toward the camera and wrap.
-const grids = [];
-for (let i = 0; i < 2; i++) {
-  const g = new THREE.GridHelper(80, 40, VIOLET, 0xa8b8e6);
-  g.material.transparent = true;
-  g.material.opacity = 0.45;
-  g.position.set(0, -3, -i * 80);
-  scene.add(g);
-  grids.push(g);
+// ---- Hex arena floor -------------------------------------------------------
+// Instanced hexagonal pillars on an axial hex grid. A ripple runs out from the
+// centre, and a handful of "lit" tiles pulse in the accent colours.
+const HEX_R = 0.62;           // tile radius
+const RINGS = 13;             // grid radius in tiles
+const hexGeo = new THREE.CylinderGeometry(HEX_R * 0.94, HEX_R * 0.94, 1, 6);
+hexGeo.translate(0, -0.5, 0); // top face at y = 0
+const hexMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.55, roughness: 0.45 });
+const cells = [];
+for (let q = -RINGS; q <= RINGS; q++) {
+  for (let r = Math.max(-RINGS, -q - RINGS); r <= Math.min(RINGS, -q + RINGS); r++) {
+    const x = HEX_R * Math.sqrt(3) * (q + r / 2);
+    const z = HEX_R * 1.5 * r;
+    cells.push({ x, z, d: Math.hypot(x, z), lit: Math.random() < 0.07, accent: ACCENTS[Math.floor(Math.random() * 3)], phase: Math.random() * Math.PI * 2 });
+  }
 }
+const floor = new THREE.InstancedMesh(hexGeo, hexMat, cells.length);
+floor.position.set(0, -2.6, -6);
+scene.add(floor);
+const base = new THREE.Color(0x181b26);
+const tmp = new THREE.Object3D();
+const tmpColor = new THREE.Color();
 
-// Horizon sun
-const sun = new THREE.Mesh(
-  new THREE.CircleGeometry(9, 64),
-  new THREE.ShaderMaterial({
-    transparent: true,
-    depthWrite: false,
-    fog: false,
-    uniforms: { uTime: { value: 0 } },
-    vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }`,
-    fragmentShader: `
-      varying vec2 vUv; uniform float uTime;
-      void main(){
-        vec3 top = vec3(0.98, 0.78, 0.36);
-        vec3 bot = vec3(0.95, 0.52, 0.72);
-        vec3 col = mix(bot, top, vUv.y);
-        float stripes = step(0.5, fract(vUv.y * 14.0 + uTime * 0.15));
-        float cut = vUv.y < 0.55 ? stripes : 1.0;
-        gl_FragColor = vec4(col, 0.7 * cut);
-      }`,
-  })
+// Glowing outlines on top of every tile give the board its HUD look.
+const edgeGeo = new THREE.EdgesGeometry(new THREE.CylinderGeometry(HEX_R * 0.94, HEX_R * 0.94, 0.001, 6));
+const edgePositions = [];
+const edgeArr = edgeGeo.attributes.position.array;
+for (const c of cells) {
+  for (let i = 0; i < edgeArr.length; i += 3) edgePositions.push(edgeArr[i] + c.x, edgeArr[i + 1] + 0.01, edgeArr[i + 2] + c.z);
+}
+const edgeLines = new THREE.LineSegments(
+  new THREE.BufferGeometry().setAttribute("position", new THREE.Float32BufferAttribute(edgePositions, 3)),
+  new THREE.LineBasicMaterial({ color: 0x3a3f55, transparent: true, opacity: 0.55 })
 );
-sun.position.set(0, 3, -60);
-scene.add(sun);
+floor.add(edgeLines);
 
-// Central core: wireframe icosahedron around a glossy inner gem.
+// ---- Hologram core ---------------------------------------------------------
 const core = new THREE.Group();
 scene.add(core);
 
-const shell = new THREE.Mesh(
-  new THREE.IcosahedronGeometry(1.9, 1),
-  new THREE.MeshBasicMaterial({ color: TEAL, wireframe: true, transparent: true, opacity: 0.9 })
+const gem = new THREE.Mesh(
+  new THREE.DodecahedronGeometry(1.05, 0),
+  new THREE.MeshStandardMaterial({ color: 0x20232f, metalness: 0.9, roughness: 0.2, flatShading: true, emissive: 0x2a1408, emissiveIntensity: 0.6 })
 );
-core.add(shell);
-
-const inner = new THREE.Mesh(
-  new THREE.OctahedronGeometry(1.0, 0),
-  new THREE.MeshStandardMaterial({ color: PINK, emissive: 0x6a2a8a, emissiveIntensity: 0.35, metalness: 0.35, roughness: 0.3, flatShading: true })
+core.add(gem);
+const gemWire = new THREE.Mesh(
+  new THREE.DodecahedronGeometry(1.09, 0),
+  new THREE.MeshBasicMaterial({ color: GOLD, wireframe: true, transparent: true, opacity: 0.7 })
 );
-core.add(inner);
+core.add(gemWire);
 
-// Soft halo behind the core (normal blending so it reads on a light page).
-const halo = new THREE.Mesh(
-  new THREE.CircleGeometry(3.4, 64),
+// Hexagonal rings (a torus with 6 radial segments is a hexagon).
+const rings = [];
+[
+  [2.0, GOLD, 0.5, 0.06],
+  [2.7, RED, -0.35, 0.04],
+  [3.4, MINT, 0.22, 0.03],
+].forEach(([radius, color, speed, tube], i) => {
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(radius, tube, 4, 6),
+    new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.85 })
+  );
+  ring.rotation.x = Math.PI / 2 + (i - 1) * 0.45;
+  ring.rotation.y = i * 0.5;
+  ring.userData.speed = speed;
+  // Node markers on each corner, like a radar HUD.
+  for (let k = 0; k < 6; k++) {
+    const a = (k / 6) * Math.PI * 2;
+    const node = new THREE.Mesh(new THREE.OctahedronGeometry(0.09), new THREE.MeshBasicMaterial({ color }));
+    node.position.set(Math.cos(a) * radius, Math.sin(a) * radius, 0);
+    ring.add(node);
+  }
+  core.add(ring);
+  rings.push(ring);
+});
+
+// Soft additive glow behind the core.
+const glow = new THREE.Mesh(
+  new THREE.PlaneGeometry(9, 9),
   new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
-    uniforms: { uA: { value: new THREE.Color(0x9ee9e1) }, uB: { value: new THREE.Color(0xd9d3ff) } },
+    blending: THREE.AdditiveBlending,
+    uniforms: { uTime: { value: 0 } },
     vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }`,
-    fragmentShader: `varying vec2 vUv; uniform vec3 uA; uniform vec3 uB;
-      void main(){ float d = distance(vUv, vec2(.5)) * 2.0; float a = smoothstep(1.0, 0.0, d); gl_FragColor = vec4(mix(uA, uB, vUv.y), a * 0.55); }`,
+    fragmentShader: `varying vec2 vUv; uniform float uTime;
+      void main(){
+        float d = distance(vUv, vec2(.5)) * 2.0;
+        float a = pow(max(0.0, 1.0 - d), 2.2) * (0.32 + 0.06 * sin(uTime * 1.5));
+        vec3 col = mix(vec3(1.0, 0.3, 0.37), vec3(1.0, 0.76, 0.24), smoothstep(0.0, 0.8, d));
+        gl_FragColor = vec4(col * a, a);
+      }`,
   })
 );
-halo.position.z = -1.5;
-core.add(halo);
+glow.position.z = -1.2;
+core.add(glow);
 
-const rings = [];
-[
-  [2.8, TEAL, 0.6],
-  [3.4, PINK, -0.4],
-  [4.0, VIOLET, 0.25],
-].forEach(([r, color, speed], i) => {
-  const ring = new THREE.Mesh(
-    new THREE.TorusGeometry(r, 0.025, 8, 160),
-    new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.75 })
-  );
-  ring.rotation.x = Math.PI / 2 + (i - 1) * 0.5;
-  ring.rotation.y = i * 0.6;
-  ring.userData.speed = speed;
-  core.add(ring);
-  rings.push(ring);
-
-  // A small "satellite" cube riding each ring
-  const sat = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.2), new THREE.MeshBasicMaterial({ color }));
-  sat.position.x = r;
-  ring.add(sat);
+// ---- Stage light beams -----------------------------------------------------
+const beamMat = (color) =>
+  new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    blending: THREE.AdditiveBlending,
+    uniforms: { uColor: { value: color } },
+    vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }`,
+    fragmentShader: `varying vec2 vUv; uniform vec3 uColor;
+      void main(){ float a = pow(vUv.y, 1.6) * 0.16; gl_FragColor = vec4(uColor * a, a); }`,
+  });
+const beams = [];
+[[-9, GOLD], [9, RED], [-4, MINT], [4, GOLD]].forEach(([x, color], i) => {
+  const beam = new THREE.Mesh(new THREE.ConeGeometry(2.2, 22, 24, 1, true), beamMat(color));
+  beam.geometry.translate(0, -11, 0); // pivot at the tip
+  beam.position.set(x, 12, -14 - (i % 2) * 6);
+  beam.userData = { base: x > 0 ? -0.35 : 0.35, phase: i * 1.3 };
+  scene.add(beam);
+  beams.push(beam);
 });
 
-// Floating debris: low-poly shapes drifting around the scene.
-const debris = [];
-const shapes = [
-  new THREE.TetrahedronGeometry(0.35),
-  new THREE.BoxGeometry(0.4, 0.4, 0.4),
-  new THREE.OctahedronGeometry(0.3),
-];
-const debrisColors = [TEAL, PINK, VIOLET, SUN];
-for (let i = 0; i < 26; i++) {
-  const color = debrisColors[i % debrisColors.length];
-  const m = new THREE.Mesh(
-    shapes[i % shapes.length],
-    i % 2 === 0
-      ? new THREE.MeshBasicMaterial({ color, wireframe: true, transparent: true, opacity: 0.8 })
-      : new THREE.MeshStandardMaterial({ color, roughness: 0.4, metalness: 0.1, flatShading: true })
-  );
-  const angle = Math.random() * Math.PI * 2;
-  const radius = 6 + Math.random() * 10;
-  m.position.set(Math.cos(angle) * radius, -1 + Math.random() * 8, Math.sin(angle) * radius - 6);
-  m.userData = { spin: (Math.random() - 0.5) * 0.02, bob: Math.random() * Math.PI * 2 };
-  scene.add(m);
-  debris.push(m);
+// ---- Rising embers ---------------------------------------------------------
+const EMBERS = 700;
+const emberPos = new Float32Array(EMBERS * 3);
+const emberCol = new Float32Array(EMBERS * 3);
+const emberSpeed = new Float32Array(EMBERS);
+for (let i = 0; i < EMBERS; i++) {
+  emberPos[i * 3] = (Math.random() - 0.5) * 40;
+  emberPos[i * 3 + 1] = Math.random() * 16 - 3;
+  emberPos[i * 3 + 2] = (Math.random() - 0.5) * 30 - 6;
+  const c = ACCENTS[i % 3];
+  emberCol.set([c.r, c.g, c.b], i * 3);
+  emberSpeed[i] = 0.006 + Math.random() * 0.018;
 }
-
-// Particle field
-const starCount = 900;
-const starPos = new Float32Array(starCount * 3);
-const starCol = new Float32Array(starCount * 3);
-const palette = [new THREE.Color(TEAL), new THREE.Color(PINK), new THREE.Color(VIOLET)];
-for (let i = 0; i < starCount; i++) {
-  starPos[i * 3] = (Math.random() - 0.5) * 120;
-  starPos[i * 3 + 1] = Math.random() * 50 - 2;
-  starPos[i * 3 + 2] = (Math.random() - 0.5) * 120 - 20;
-  const c = palette[i % 3];
-  starCol.set([c.r, c.g, c.b], i * 3);
-}
-const starGeo = new THREE.BufferGeometry();
-starGeo.setAttribute("position", new THREE.BufferAttribute(starPos, 3));
-starGeo.setAttribute("color", new THREE.BufferAttribute(starCol, 3));
-const stars = new THREE.Points(
-  starGeo,
-  new THREE.PointsMaterial({ size: 0.09, vertexColors: true, transparent: true, opacity: 0.55, depthWrite: false })
+const emberGeo = new THREE.BufferGeometry();
+emberGeo.setAttribute("position", new THREE.BufferAttribute(emberPos, 3));
+emberGeo.setAttribute("color", new THREE.BufferAttribute(emberCol, 3));
+const embers = new THREE.Points(
+  emberGeo,
+  new THREE.PointsMaterial({ size: 0.07, vertexColors: true, transparent: true, opacity: 0.85, depthWrite: false, blending: THREE.AdditiveBlending })
 );
-scene.add(stars);
+scene.add(embers);
 
-scene.add(new THREE.HemisphereLight(0xffffff, 0xc9d6ff, 1.6));
-const key = new THREE.DirectionalLight(0xffffff, 1.4);
-key.position.set(4, 6, 5);
-scene.add(key);
+// ---- Lights ----------------------------------------------------------------
+scene.add(new THREE.AmbientLight(0xffffff, 0.25));
+const keyLight = new THREE.PointLight(0xffc23d, 40, 30);
+keyLight.position.set(3, 4, 3);
+scene.add(keyLight);
+const rimLight = new THREE.PointLight(0xff4d5e, 35, 30);
+rimLight.position.set(-5, 1, -2);
+scene.add(rimLight);
+const floorLight = new THREE.DirectionalLight(0x8899ff, 0.35);
+floorLight.position.set(0, 10, 4);
+scene.add(floorLight);
 
-// Input: mouse parallax + scroll progress
+// ---- Input: mouse parallax + scroll progress -------------------------------
 const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
 window.addEventListener("pointermove", (e) => {
   pointer.tx = (e.clientX / window.innerWidth) * 2 - 1;
@@ -177,8 +191,8 @@ function resize() {
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
   // On narrow screens push the core back so it sits behind the text.
-  if (w < 720) core.position.set(1.5, 3.5, -10);
-  else core.position.set(3.2, 0.6, 0);
+  if (w < 720) core.position.set(1.2, 3.6, -10);
+  else core.position.set(3.4, 0.9, 0);
 }
 window.addEventListener("resize", resize);
 resize();
@@ -191,34 +205,45 @@ function tick() {
   pointer.x += (pointer.tx - pointer.x) * 0.05;
   pointer.y += (pointer.ty - pointer.y) * 0.05;
 
-  for (const g of grids) {
-    g.position.z += 0.06;
-    if (g.position.z > 40) g.position.z -= 160;
-  }
-
-  shell.rotation.x = t * 0.15 + scroll * 4;
-  shell.rotation.y = t * 0.2;
-  inner.rotation.y = -t * 0.6;
-  inner.rotation.z = t * 0.3;
-  inner.scale.setScalar(1 + Math.sin(t * 2) * 0.06);
-  halo.lookAt(camera.position);
-  rings.forEach((r) => (r.rotation.z += r.userData.speed * 0.01));
-
-  debris.forEach((m) => {
-    m.rotation.x += m.userData.spin;
-    m.rotation.y += m.userData.spin * 1.3;
-    m.position.y += Math.sin(t + m.userData.bob) * 0.003;
+  // Floor ripple + pulsing lit tiles
+  cells.forEach((c, i) => {
+    const wave = Math.sin(c.d * 0.7 - t * 1.6) * 0.18;
+    const pulse = c.lit ? 0.5 + 0.5 * Math.sin(t * 2.2 + c.phase) : 0;
+    tmp.position.set(c.x, wave + pulse * 0.35, c.z);
+    tmp.scale.set(1, 1.2 + wave + pulse * 0.4, 1);
+    tmp.updateMatrix();
+    floor.setMatrixAt(i, tmp.matrix);
+    if (c.lit) tmpColor.copy(base).lerp(c.accent, 0.25 + pulse * 0.75);
+    else tmpColor.copy(base).offsetHSL(0, 0, wave * 0.08);
+    floor.setColorAt(i, tmpColor);
   });
+  floor.instanceMatrix.needsUpdate = true;
+  floor.instanceColor.needsUpdate = true;
 
-  stars.rotation.y = t * 0.01;
-  sun.material.uniforms.uTime.value = t;
+  gem.rotation.y = t * 0.35;
+  gem.rotation.x = t * 0.2 + scroll * 3;
+  gemWire.rotation.copy(gem.rotation);
+  rings.forEach((r) => (r.rotation.z += r.userData.speed * 0.012));
+  core.position.y += Math.sin(t * 1.2) * 0.002;
+  glow.lookAt(camera.position);
+  glow.material.uniforms.uTime.value = t;
+
+  beams.forEach((b) => (b.rotation.z = b.userData.base + Math.sin(t * 0.4 + b.userData.phase) * 0.25));
+
+  const pos = emberGeo.attributes.position.array;
+  for (let i = 0; i < EMBERS; i++) {
+    pos[i * 3 + 1] += emberSpeed[i];
+    pos[i * 3] += Math.sin(t + i) * 0.002;
+    if (pos[i * 3 + 1] > 13) pos[i * 3 + 1] = -3;
+  }
+  emberGeo.attributes.position.needsUpdate = true;
 
   // Camera drifts with the pointer and orbits as you scroll the page.
-  const angle = scroll * Math.PI * 0.6;
-  camera.position.x = Math.sin(angle) * 9 + pointer.x * 0.8;
-  camera.position.z = Math.cos(angle) * 9;
-  camera.position.y = 1.2 - scroll * 1.5 - pointer.y * 0.5;
-  camera.lookAt(0, 0.3, -2);
+  const angle = scroll * Math.PI * 0.55;
+  camera.position.x = Math.sin(angle) * 10 + pointer.x * 0.8;
+  camera.position.z = Math.cos(angle) * 10;
+  camera.position.y = 2.2 - scroll * 1.2 - pointer.y * 0.5;
+  camera.lookAt(0, 0, -3);
 
   renderer.render(scene, camera);
 }

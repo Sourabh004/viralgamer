@@ -24,17 +24,31 @@
   );
   setSceneBlur(false);
 
-  // Interview reels: one card per entry in interviews.js, played through
-  // Instagram's official embed. The embed script loads only when the section
-  // comes near the viewport so it doesn't slow the first paint.
-  const reels = (window.VG_INTERVIEWS || []).filter((r) => r && r.url);
-  const reelsEl = document.getElementById("reels");
-  const reelsWrap = reelsEl.parentElement;
-  if (!reels.length) {
-    reelsWrap.hidden = true;
-    document.getElementById("reels-empty").hidden = false;
-    document.querySelector(".reels-more").hidden = true;
-  } else {
+  // Reel rows (Interviews, Promotions): one card per entry in the section's
+  // data file, played through Instagram's official embed. The embed script
+  // loads once, only when a reel row comes near the viewport.
+  let embedScript = false;
+  const loadEmbeds = () => {
+    if (window.instgrm) return window.instgrm.Embeds.process();
+    if (embedScript) return; // still loading; it processes every embed on load
+    embedScript = true;
+    const s = document.createElement("script");
+    s.src = "https://www.instagram.com/embed.js";
+    s.async = true;
+    document.body.appendChild(s);
+  };
+
+  const setupReels = (sectionId, list) => {
+    const section = document.getElementById(sectionId);
+    const reels = (list || []).filter((r) => r && r.url);
+    const reelsEl = section.querySelector(".reels");
+    const reelsWrap = section.querySelector(".reels-wrap");
+    if (!reels.length) {
+      reelsWrap.hidden = true;
+      section.querySelector(".reels-empty").hidden = false;
+      section.querySelector(".reels-more").hidden = true;
+      return;
+    }
     reels.forEach((r) => {
       const url = r.url.split("?")[0].replace(/\/?$/, "/");
       const card = document.createElement("article");
@@ -66,13 +80,6 @@
       reelsEl.appendChild(card);
     });
 
-    const loadEmbeds = () => {
-      if (window.instgrm) return window.instgrm.Embeds.process();
-      const s = document.createElement("script");
-      s.src = "https://www.instagram.com/embed.js";
-      s.async = true;
-      document.body.appendChild(s);
-    };
     const rio = new IntersectionObserver(
       (entries) => {
         if (entries.some((e) => e.isIntersecting)) {
@@ -95,7 +102,9 @@
     reelsEl.addEventListener("scroll", syncNav, { passive: true });
     window.addEventListener("resize", syncNav);
     syncNav();
-  }
+  };
+  setupReels("interviews", window.VG_INTERVIEWS);
+  setupReels("promotions", window.VG_PROMOTIONS);
 
   // Scroll reveal
   const io = new IntersectionObserver(
