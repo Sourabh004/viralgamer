@@ -177,7 +177,7 @@ h2 { font-size: clamp(32px, 5vw, 58px); font-weight: 900; color: var(--ink); }
   padding: 6px 4px 22px; scrollbar-width: thin; scrollbar-color: var(--teal) transparent;
 }
 .reel-card {
-  flex: 0 0 360px; max-width: 100%; scroll-snap-align: start;
+  flex: 0 0 min(340px, 100%); scroll-snap-align: start;
   display: flex; flex-direction: column; gap: 12px; padding: 14px;
   border-radius: var(--radius); background: var(--glass-strong); border: 1px solid rgba(255,255,255,.95);
   backdrop-filter: blur(12px); box-shadow: var(--shadow);
@@ -282,7 +282,6 @@ h2 { font-size: clamp(32px, 5vw, 58px); font-weight: 900; color: var(--ink); }
   .section { padding-top: 90px; }
   .stat { min-width: 0; flex: 1 1 140px; }
   .logo-track img { width: 120px; height: 90px; }
-  .reel-card { flex-basis: 100%; }
   .reel-nav { display: none; }
 }
 @media (max-width: 480px) {
