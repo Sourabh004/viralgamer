@@ -246,38 +246,47 @@
   const next = events.filter((e) => e.status === "upcoming").sort(byStart)[0] || events.filter((e) => e.status === "live").sort(byStart)[0];
 
   const eventsGrid = document.getElementById("events-grid");
+  const dateRange = (e) =>
+    !e.startDate ? null : e.end && e.end !== e.start ? `${fmtDate(e.startDate).replace(/ \d{4}$/, "")} – ${fmtDate(e.endDate)}` : fmtDate(e.startDate);
+
+  // Card: illustration header (landmark + logo) · title · footer (status, date, countdown).
   events.filter((e) => e !== next).forEach((e) => {
     const card = el("article", `event reveal ${e.status || "tba"}`);
-    card.appendChild(landmark(e.city));
+    const media = el("div", "event-media");
+    media.appendChild(landmark(e.city));
     const logo = eventLogo(e);
-    if (logo) card.appendChild(logo);
-    const top = el("div");
-    top.appendChild(el("h3", null, e.tag));
-    if (e.name) top.appendChild(el("p", null, e.name));
-    const meta = el("div", "event-meta");
+    if (logo) media.appendChild(logo);
+
+    const body = el("div", "event-body");
+    body.appendChild(el("h3", null, e.tag));
+    if (e.name) body.appendChild(el("p", null, e.name));
+
+    const foot = el("div", "event-foot");
+    const row = el("div", "event-row");
     const label = { upcoming: "Upcoming", live: "Live now", covered: "Covered" }[e.status] || "Dates TBA";
-    meta.appendChild(el("span", `chip ${e.status || ""}`, label));
-    if (e.startDate) {
-      const range = e.endDate && e.end && e.end !== e.start ? `${fmtDate(e.startDate).replace(/ \d{4}$/, "")} – ${fmtDate(e.endDate)}` : fmtDate(e.startDate);
-      meta.appendChild(el("span", null, range));
-    }
-    if (e.venue) meta.appendChild(el("span", "event-venue", e.venue));
-    card.append(top);
-    if (e.status === "upcoming") card.appendChild(makeCountdown(e.startDate, ["d", "h", "m", "s"], "mini-countdown"));
-    card.appendChild(meta);
-    if (e.note) card.appendChild(el("small", "event-note", e.note));
+    row.appendChild(el("span", `chip ${e.status || ""}`, label));
+    if (e.startDate) row.appendChild(el("span", "event-date", dateRange(e)));
+    foot.appendChild(row);
+    if (e.status === "upcoming") foot.appendChild(makeCountdown(e.startDate, ["d", "h", "m", "s"], "mini-countdown"));
+    if (e.venue) foot.appendChild(el("span", "event-venue", e.venue));
+    if (e.note) foot.appendChild(el("small", "event-note", e.note));
+
+    card.append(media, body, foot);
     eventsGrid.appendChild(card);
   });
   if (next) {
     const box = document.getElementById("next-event");
     box.appendChild(landmark(next.city));
     const info = el("div", "next-info");
+    const head = el("div", "next-head");
     const logo = eventLogo(next);
-    if (logo) info.appendChild(logo);
+    if (logo) head.appendChild(logo);
+    head.appendChild(el("span", "next-label", next.status === "live" ? "● Live now" : "Next up"));
     info.append(
-      el("span", "next-label", next.status === "live" ? "● Live now" : "Next up"),
+      head,
       el("h3", null, next.tag),
-      el("p", null, [next.name, next.venue].filter(Boolean).join(" · "))
+      el("p", null, next.name || ""),
+      el("p", "next-meta", [dateRange(next), next.venue].filter(Boolean).join("  ·  "))
     );
     box.appendChild(info);
     if (next.status === "upcoming") box.appendChild(makeCountdown(next.startDate, ["Days", "Hrs", "Min", "Sec"], "countdown"));
