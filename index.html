@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Viral Gamer — The Hub for Gamers</title>
+  <meta name="description" content="Viral Gamer is an Indian esports media and PR organization with 1.3M+ followers and 20M+ monthly reach." />
+  <meta name="theme-color" content="#e4f5f6" />
+  <link rel="icon" href="assets/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+  </script>
+</head>
+<body>
+  <canvas id="scene" aria-hidden="true"></canvas>
+
+  <header class="nav">
+    <a href="#top" class="logo" aria-label="Viral Gamer home">
+      <img src="assets/logo.png" alt="" width="40" height="40" />
+      <span>VIRAL<b>GAMER</b></span>
+    </a>
+    <nav class="links">
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#team">Team</a>
+      <a href="#clients">Clients</a>
+    </nav>
+    <a href="#contact" class="btn btn-sm">Apply Now</a>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <p class="eyebrow"><span class="dot"></span> India's esports media &amp; PR network</p>
+      <h1 class="glitch" data-text="THE HUB FOR GAMERS">THE HUB FOR GAMERS</h1>
+      <p class="lede">Brand integrations, live tournament coverage, interviews and podcasts — built for India's fastest-growing gaming community.</p>
+      <div class="cta">
+        <a href="#contact" class="btn">Apply Now</a>
+        <a href="#services" class="btn btn-ghost">Explore Services</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><strong data-count="1.3" data-suffix="M+" data-decimals="1">0</strong><span>Followers</span></div>
+        <div class="stat"><strong data-count="20" data-suffix="M+">0</strong><span>Monthly reach</span></div>
+        <div class="stat"><strong data-count="4" data-suffix="">0</strong><span>Core services</span></div>
+      </div>
+      <a href="#about" class="scroll-hint" aria-label="Scroll down"><span></span></a>
+    </section>
+
+    <!-- TICKER -->
+    <div class="ticker" aria-hidden="true">
+      <div class="track">
+        <span>LIVE TOURNAMENT UPDATES</span><i>◆</i><span>EXCLUSIVE INTERVIEWS</span><i>◆</i><span>PODCASTS</span><i>◆</i><span>BRAND INTEGRATIONS</span><i>◆</i><span>ON-GROUND COVERAGE</span><i>◆</i><span>COMMUNITY PAGES</span><i>◆</i>
+        <span>LIVE TOURNAMENT UPDATES</span><i>◆</i><span>EXCLUSIVE INTERVIEWS</span><i>◆</i><span>PODCASTS</span><i>◆</i><span>BRAND INTEGRATIONS</span><i>◆</i><span>ON-GROUND COVERAGE</span><i>◆</i><span>COMMUNITY PAGES</span><i>◆</i>
+      </div>
+    </div>
+
+    <!-- ABOUT -->
+    <section id="about" class="section">
+      <div class="section-head reveal">
+        <p class="kicker">01 // Who we are</p>
+        <h2>Powering India's <em>esports</em> culture</h2>
+      </div>
+      <div class="about-grid">
+        <div class="panel reveal">
+          <p>Viral Gamer is an Indian esports media and PR organization powered by <b>1.3M+ followers</b> across social platforms and a <b>20M+ monthly reach</b> through multiple community pages.</p>
+          <p>We specialize in brand integrations, promotions, social media management and on-ground event coverage, while delivering exclusive esports content including live tournament updates, interviews, podcasts and more.</p>
+          <p>Our mission is to connect brands with the rapidly growing gaming community and create impactful experiences in the Indian esports ecosystem.</p>
+        </div>
+        <div class="panel vision reveal">
+          <img class="vision-logo" src="assets/logo.png" alt="Viral Gamer logo" width="96" height="96" />
+          <p class="kicker">Our vision</p>
+          <blockquote>To be India's leading esports media platform, empowering gamers and brands while seamlessly connecting audiences through impactful content and meaningful engagement.</blockquote>
+          <div class="hud" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section id="services" class="section">
+      <div class="section-head reveal">
+        <p class="kicker">02 // What we do</p>
+        <h2>Services built for <em>game day</em></h2>
+        <p class="sub">From campaign ideas to live coverage, we put brands where gamers already are.</p>
+      </div>
+      <div class="cards">
+        <article class="card tilt reveal" style="--c: var(--cyan)">
+          <div class="card-ico"><svg viewBox="0 0 24 24"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg></div>
+          <span class="num">01</span>
+          <h3>Brand Integrations &amp; PR Promotions</h3>
+          <p>Creative campaigns and collaborations that connect brands with the gaming community.</p>
+        </article>
+        <article class="card tilt reveal" style="--c: var(--magenta)">
+          <div class="card-ico"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/></svg></div>
+          <span class="num">02</span>
+          <h3>Event &amp; On-Ground Coverage</h3>
+          <p>Live coverage, media presence and PR for esports tournaments and gaming events.</p>
+        </article>
+        <article class="card tilt reveal" style="--c: var(--lime)">
+          <div class="card-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/></svg></div>
+          <span class="num">03</span>
+          <h3>Social Media Management</h3>
+          <p>Managing and growing community pages with engaging esports and gaming content.</p>
+        </article>
+        <article class="card tilt reveal" style="--c: var(--amber)">
+          <div class="card-ico"><svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5"/></svg></div>
+          <span class="num">04</span>
+          <h3>Esports Media &amp; Content</h3>
+          <p>Live updates, exclusive interviews, podcasts and storytelling around esports.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- TEAM -->
+    <section id="team" class="section">
+      <div class="section-head reveal">
+        <p class="kicker">03 // The squad</p>
+        <h2>Meet the <em>team</em></h2>
+      </div>
+      <div class="team">
+        <div class="member tilt reveal"><div class="photo"><img src="assets/team/faizan.jpg" alt="Faizan Ahmad" loading="lazy" /></div><h3>Faizan Ahmad</h3><p>Founder &amp; CEO</p></div>
+        <div class="member tilt reveal"><div class="photo"><img src="assets/team/sourabh.jpg" alt="Sourabh K" loading="lazy" /></div><h3>Sourabh K</h3><p>Tech &amp; Content Head</p></div>
+        <div class="member tilt reveal"><div class="photo"><img src="assets/team/ankit.jpg" alt="Ankit Raj" loading="lazy" /></div><h3>Ankit Raj</h3><p>Finance Manager</p></div>
+        <div class="member tilt reveal"><div class="photo"><img src="assets/team/kunal.jpg" alt="Kunal" loading="lazy" /></div><h3>Kunal</h3><p>Ops Manager</p></div>
+        <div class="member tilt reveal"><div class="photo"><img src="assets/team/anshuman.jpg" alt="Anshuman Singh" loading="lazy" /></div><h3>Anshuman Singh</h3><p>Editor in Chief</p></div>
+        <div class="member tilt reveal"><div class="photo"><img src="assets/team/harshit.jpg" alt="Harshit K" loading="lazy" /></div><h3>Harshit K</h3><p>Production Manager</p></div>
+      </div>
+    </section>
+
+    <!-- CLIENTS -->
+    <section id="clients" class="section">
+      <div class="section-head reveal">
+        <p class="kicker">04 // Trusted by</p>
+        <h2>Our happy <em>clients</em></h2>
+        <p class="sub">Brands, publishers and esports organisations we've worked with.</p>
+      </div>
+      <div class="logos reveal">
+        <div class="logo-row">
+          <div class="logo-track">
+            <img src="assets/clients/redbull.png" alt="Red Bull" /><img src="assets/clients/saudi-esports.png" alt="Saudi Esports Federation" /><img src="assets/clients/krafton.png" alt="Krafton" /><img src="assets/clients/nodwin.png" alt="Nodwin Gaming" /><img src="assets/clients/loco.png" alt="Loco" /><img src="assets/clients/rvcj.png" alt="RVCJ" /><img src="assets/clients/ge.png" alt="Global Esports" /><img src="assets/clients/upthrust.jpg" alt="Upthrust Esports" />
+            <img src="assets/clients/redbull.png" alt="" aria-hidden="true" /><img src="assets/clients/saudi-esports.png" alt="" aria-hidden="true" /><img src="assets/clients/krafton.png" alt="" aria-hidden="true" /><img src="assets/clients/nodwin.png" alt="" aria-hidden="true" /><img src="assets/clients/loco.png" alt="" aria-hidden="true" /><img src="assets/clients/rvcj.png" alt="" aria-hidden="true" /><img src="assets/clients/ge.png" alt="" aria-hidden="true" /><img src="assets/clients/upthrust.jpg" alt="" aria-hidden="true" />
+          </div>
+        </div>
+        <div class="logo-row reverse">
+          <div class="logo-track">
+            <img src="assets/clients/revenant.jpg" alt="Revenant Esports" /><img src="assets/clients/gods-reign.png" alt="Gods Reign" /><img src="assets/clients/afk-gaming.jpg" alt="AFK Gaming" /><img src="assets/clients/monster.jpg" alt="Monster Energy" /><img src="assets/clients/esl.jpg" alt="ESL" /><img src="assets/clients/iqoo.jpg" alt="iQOO" /><img src="assets/clients/getstan.jpg" alt="STAN" />
+            <img src="assets/clients/revenant.jpg" alt="" aria-hidden="true" /><img src="assets/clients/gods-reign.png" alt="" aria-hidden="true" /><img src="assets/clients/afk-gaming.jpg" alt="" aria-hidden="true" /><img src="assets/clients/monster.jpg" alt="" aria-hidden="true" /><img src="assets/clients/esl.jpg" alt="" aria-hidden="true" /><img src="assets/clients/iqoo.jpg" alt="" aria-hidden="true" /><img src="assets/clients/getstan.jpg" alt="" aria-hidden="true" />
+          </div>
+        </div>
+      </div>
+      <figure class="quote panel reveal">
+        <svg class="qmark" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18v-5c0-4 2-7 6-8l1 2c-2 1-3 3-3 5h3v6H4zm9 0v-5c0-4 2-7 6-8l1 2c-2 1-3 3-3 5h3v6h-7z"/></svg>
+        <blockquote>Viral Gamer has become a cornerstone of India's gaming culture — their 1.3M+ followers and 20M+ monthly reach create the kind of buzz every brand dreams of. By blending high-energy content with authentic community engagement, they've amplified Red Bull's esports initiatives and helped us connect with gamers where it matters most.</blockquote>
+        <figcaption><img src="assets/clients/redbull.png" alt="" /><div><b>Pourushasp</b><span>Red Bull India</span></div></figcaption>
+      </figure>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="section">
+      <div class="join panel reveal">
+        <p class="kicker">05 // Player 2 ready?</p>
+        <h2>Let's build your next <em>campaign</em></h2>
+        <p class="sub">Brands, creators and teams — reach out on any of our channels and we'll get back to you.</p>
+        <div class="socials">
+          <a class="social ig" href="https://www.instagram.com/viral.gamer/" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>Instagram</a>
+          <a class="social dc" href="https://discord.gg/9rqVZ55YwH" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M7 7c3-1.3 7-1.3 10 0l1.5 9c-1.6 1.3-3.3 2-5 2l-1-1.6M7 7L5.5 16c1.6 1.3 3.3 2 5 2l1-1.6"/><circle cx="9.5" cy="12" r="1.2" fill="currentColor"/><circle cx="14.5" cy="12" r="1.2" fill="currentColor"/></svg>Discord</a>
+          <a class="social yt" href="https://www.youtube.com/c/ViralGamerFTW" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="currentColor"/></svg>YouTube</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>© <span id="year"></span> Viral Gamer. The Hub for Gamers.</span>
+    <a href="#top">Back to top ↑</a>
+  </footer>
+
+  <script type="module" src="scene.js"></script>
+  <script src="ui.js" defer></script>
+</body>
+</html>
